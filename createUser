@@ -40,23 +40,25 @@ echo "# Generated credentials: ${CREDENTIALS}"
 echo
 echo "# Generated certificate:"
 echo
-echo "cat >\"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.cert.pem\" <<EOF"
+echo "cat >\"\${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.cert.pem\" <<EOF"
 cat user_client.cert.pem
 echo "EOF"
 echo
 echo "# Generated private key:"
 echo
-echo "cat >\"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.key.pem\" <<EOF"
+echo "cat >\"\${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.key.pem\" <<EOF"
 cat user_client.key.pem
 echo "EOF"
 echo
 echo "# Downloading Let's Encrypt root certificate"
-echo "curl https://letsencrypt.org/certs/isrgrootx1.pem >${HOME}/.task/isrgrootx1.pem"
+echo "curl https://letsencrypt.org/certs/isrgrootx1.pem >\${HOME}/.task/isrgrootx1.pem"
 echo
 echo "# Configure client using:"
-echo "task config taskd.certificate -- \"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.cert.pem\""
-echo "task config taskd.key         -- \"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.key.pem\""
-echo "task config taskd.ca          -- \"${HOME}/.task/isrgrootx1.pem\""
+echo "task config taskd.certificate -- \"\${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.cert.pem\""
+echo "task config taskd.key         -- \"\${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.key.pem\""
+echo "task config taskd.ca          -- \"\${HOME}/.task/isrgrootx1.pem\""
+echo "task config taskd.server      -- \"${HOSTNAME}:53589\""
+echo "task config taskd.credentials -- \"${CREDENTIALS}\""
 echo
 echo "## DONE"
 

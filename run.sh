@@ -16,15 +16,6 @@ if ! test -e ${TASKDDATA}/config; then
   taskd init
   taskd config --force log ${TASKDDATA}/log/taskd.log
 
-  if [ "$EMAIL" != "" ]; then
-    # Use letsencrypt to get server certificates
-    certbot certonly -n --standalone --cert-name ${HOSTNAME} --agree-tos --email ${EMAIL}
-
-    # Configure taskd to use this newly generated certificates
-    taskd config --force server.cert /etc/letsencrypt/live/$HOSTNAME/fullchain.pem
-    taskd config --force server.key /etc/letsencrypt/live/$HOSTNAME/privkey.pem
-  fi
-
   # And finally set taskd to listen in default port
   taskd config --force server 0.0.0.0:53589
 
@@ -52,7 +43,22 @@ if ! test -e ${TASKDDATA}/config; then
   /bin/createUser
 fi
 
-if [ -e "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem" ]; then
+if [ "${VIRTUAL_HOST}" != "" ]; then
+  # Behind proxy, give some time to the proxy controller to notice this container is up
+  echo "Giving time to the reverse proxy server to catch up"
+  sleep 3
+fi
+
+if [ ! -r "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem" ]; then
+  if [ "$EMAIL" != "" ]; then
+    # Use letsencrypt to get server certificates
+    certbot certonly -v -n --standalone --domains ${HOSTNAME} --cert-name ${HOSTNAME} --agree-tos --email ${EMAIL}
+
+    # Configure taskd to use this newly generated certificates
+    taskd config --force server.cert "/etc/letsencrypt/live/${HOSTNAME}/fullchain.pem"
+    taskd config --force server.key "/etc/letsencrypt/live/${HOSTNAME}/privkey.pem"
+  fi
+else
   # Renew certificates
   certbot renew -n
 fi
