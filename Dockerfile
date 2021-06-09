@@ -1,21 +1,25 @@
 FROM alpine:latest
-MAINTAINER Andreas Rammhold (andreas@rammhold.de)
+MAINTAINER Martin Sivak (mars@montik.net)
 
 # Install necessary stuff
 RUN apk -U --no-progress upgrade && \
-  apk -U --no-progress add taskd taskd-pki
+  apk -U --no-progress add taskd taskd-pki certbot
 
 # Import build and startup script
-COPY docker /app/taskd/
+ADD run.sh /
+ADD createUser /bin/
 
 # Set the data location
-ARG TASKDDATA
-ENV TASKDDATA ${TASKDDATA:-/var/taskd}
-ENV TASKD_ORGANIZATION Public
-ENV TASKD_USERNAME Bob
-ENV CLIENT_CERT_PATH /var/taskd/client
+ENV TASKDDATA "/home"
+ENV TASKD_ORGANIZATION "Public"
+ENV TASKD_USERNAME "Bob"
+
 
 # Configure container
 VOLUME ["${TASKDDATA}"]
+VOLUME /etc/letsencrypt
+
 EXPOSE 53589
-ENTRYPOINT ["/app/taskd/run.sh"]
+EXPOSE 80
+
+ENTRYPOINT ["/run.sh"]

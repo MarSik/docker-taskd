@@ -1,9 +1,11 @@
-[![Twitter](https://img.shields.io/badge/Twitter-%40jeckel4-blue.svg)](https://twitter.com/jeckel4) [![LinkedIn](https://img.shields.io/badge/LinkedIn-Julien%20Mercier-blue.svg)](https://www.linkedin.com/in/jeckel/)
 # Taskwarrior Server (taskd) Docker
 
-*Forked from [8sd/docker-taskd](https://github.com/8sd/docker-taskd)
+*Forked from [jeckel/docker-taskd](https://github.com/jeckel/docker-taskd)
 
 (c) 2015-2016 Óscar García Amor
+(c) 2018 Sebastian Duda
+(c) 2019 Julien Mercier
+
 Redistribution, modifications and pull requests are welcomed under the terms
 of MIT license.
 
@@ -14,7 +16,7 @@ efficient, and unobtrusive. It does its job then gets out of your way.
 This docker packages **taskd**, Taskwarrior sync server, under [Alpine
 Linux](https://alpinelinux.org/), a lightweight Linux distribution.
 
-Visit [Docker Hub](https://hub.docker.com/r/ogarcia/taskd/) to see all
+Visit [Quay.io](https://quay.io/repository/marsik/taskwarrior-server?tab=tags) to see all
 available tags.
 
 ## Run
@@ -27,7 +29,7 @@ docker run -d \
   --name=taskd \
   -p 53589:53589 \
   -v /srv/taskd:/var/taskd \
-  andir/docker-taskd
+  quay.io/marsik/taskwarrior-server
 ```
 
 This makes a set of self signed certificates and minimal configuration to
@@ -43,7 +45,7 @@ docker run -d \
   -p 53589:53589 \
   -v /srv/taskd:/var/taskd \
   -h <hostname>
-  andir/docker-taskd
+  quay.io/marsik/taskwarrior-server
 ```
 
 Where `<hostname>` is the domain how the remote server can be reached.
@@ -77,7 +79,7 @@ docker in interactive mode, simply do.
 ```sh
 docker run -ti --rm \
   -v /srv/taskd:/var/taskd \
-  andir/docker-taskd /bin/sh
+  quay.io/marsik/taskwarrior-server /bin/sh
 ```
 
 This mounts the permanent data volume `/srv/taskd` into **taskd** data
@@ -116,7 +118,7 @@ docker run -d \
   -p 53589:53589 \
   -v /srv/taskd:/var/taskd \
   -v ./vars:/var/taskd/pki/vars
-  andir/taskd
+  quay.io/marsik/taskwarrior-server
 ```
 
 Or with the docker configs storage: 
@@ -127,5 +129,5 @@ docker run -d \
   -p 53589:53589 \
   -v /srv/taskd:/var/taskd \
   --config source=taskd_vars,target=/var/taskd/pki/vars,mode=0440
-  andir/taskd
+  quay.io/marsik/taskwarrior-server
 ```

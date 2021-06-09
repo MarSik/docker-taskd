@@ -1,0 +1,63 @@
+#!/usr/bin/env sh
+USERNAME=${1:-${TASKD_USERNAME}}
+ORGANIZATION=${2:-${TASKD_ORGANIZATION}}
+
+echo "## Generating ${USERNAME}/${ORGANIZATION}"
+
+# @todo test if org already exists ?
+taskd add org ${ORGANIZATION}
+UID=$(taskd add user "${ORGANIZATION}" "${USERNAME}" | grep 'key' | cut -d' ' -f 4)
+
+
+# the temp directory used, within $DIR
+# omit the -p parameter to create a temporal directory in the default location
+WORK_DIR=$(mktemp -d)
+
+# check if tmp dir was created
+if [[ ! "${WORK_DIR}" || ! -d "${WORK_DIR}" ]]; then
+  echo "# Could not create temp dir"
+  exit 1
+fi
+
+# deletes the temp directory
+function cleanup {      
+  rm -rf "${WORK_DIR}"
+  echo "# Deleted temp working directory $WORK_DIR"
+}
+
+# register the cleanup function to be called on the EXIT signal
+trap cleanup EXIT
+
+cp ${TASKDDATA}/pki/vars ${TASKDDATA}/pki/ca* ${TASKDDATA}/pki/generate.client ${WORK_DIR}
+cd ${WORK_DIR}
+./generate.client user_client
+
+CREDENTIALS="${ORGANIZATION}/${USERNAME}/${UID}"
+
+echo "## Copy and paste this into shell to configure your TaskWarrior client."
+echo
+echo "# Generated credentials: ${CREDENTIALS}"
+echo
+echo "# Generated certificate:"
+echo
+echo "cat >\"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.cert.pem\" <<EOF"
+cat user_client.cert.pem
+echo "EOF"
+echo
+echo "# Generated private key:"
+echo
+echo "cat >\"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.key.pem\" <<EOF"
+cat user_client.key.pem
+echo "EOF"
+echo
+echo "# Downloading Let's Encrypt root certificate"
+echo "curl https://letsencrypt.org/certs/isrgrootx1.pem >${HOME}/.task/isrgrootx1.pem"
+echo
+echo "# Configure client using:"
+echo "task config taskd.certificate -- \"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.cert.pem\""
+echo "task config taskd.key         -- \"${HOME}/.task/${HOSTNAME}-${ORGANIZATION}-${USERNAME}.key.pem\""
+echo "task config taskd.ca          -- \"${HOME}/.task/isrgrootx1.pem\""
+echo
+echo "## DONE"
+
+
